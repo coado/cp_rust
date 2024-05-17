@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 
-pub fn dfs(graph: &Vec<Vec<i32>>, v: usize, visited: &mut Vec<bool>, stack: &mut Vec<i32>) {
+fn dfs(graph: &Vec<Vec<i32>>, v: usize, visited: &mut Vec<bool>, stack: &mut Vec<i32>) {
     visited[v] = true;
 
     for el in graph[v].iter() {
@@ -34,4 +34,19 @@ pub fn topological_sort(graph: Vec<Vec<i32>>) -> Result<Vec<i32>> {
     }
 
     Ok(res)
+}
+
+#[cfg(test)]
+mod test {
+    use super::topological_sort;
+
+    #[test]
+    fn test_topological_sort() {
+        let graph = vec![vec![], vec![], vec![3], vec![1], vec![0, 1], vec![2, 0]];
+        let res = topological_sort(graph).unwrap();
+
+        println!("{:?}", res);
+
+        assert_eq!(res, vec![5, 4, 2, 3, 1, 0]);
+    }
 }
