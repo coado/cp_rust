@@ -35,6 +35,15 @@ where
     }
 }
 
+impl<T> Default for Stack<T>
+where
+    T: Ord + Copy,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::Stack;

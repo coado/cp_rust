@@ -1,4 +1,3 @@
-
 pub fn bipow_rec(a: i64, b: i64) -> i64 {
     if b == 0 {
         return 1;
@@ -6,9 +5,9 @@ pub fn bipow_rec(a: i64, b: i64) -> i64 {
     let res = bipow_rec(a, b / 2);
 
     if b % 2 == 1 {
-        return res * res * 2;
+        res * res * a
     } else {
-        return res * res;
+        res * res
     }
 }
 

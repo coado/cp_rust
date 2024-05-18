@@ -18,9 +18,7 @@ impl SparseTable {
         let k = f64::log2(nums.len() as f64) as usize;
         let mut st = vec![vec![0; nums.len()]; k + 1];
 
-        for i in 0..nums.len() {
-            st[0][i] = nums[i];
-        }
+        st[0][..nums.len()].copy_from_slice(&nums[..]);
 
         for i in 1..=k {
             let mut j = 0;

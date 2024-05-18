@@ -43,8 +43,8 @@ impl From<Vec<i32>> for FenwickTree {
     fn from(nums: Vec<i32>) -> Self {
         let mut fenwick_tree = FenwickTree::new(nums.len());
 
-        for i in 0..nums.len() {
-            fenwick_tree.tree[i] += nums[i];
+        for (i, val) in nums.iter().enumerate() {
+            fenwick_tree.tree[i] += val;
             let r = i | (i + 1);
             fenwick_tree.tree[r] += fenwick_tree.tree[i];
         }
@@ -143,7 +143,6 @@ mod test {
     use std::cmp::min;
 
     use super::{FenwickTree, FenwickTree2D, MinFenwickTree};
-    use crate::utils::print_2d_vector;
     use rand::prelude::*;
 
     #[test]

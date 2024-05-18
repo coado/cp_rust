@@ -1,16 +1,16 @@
 use std::fmt::Display;
 
 pub fn print_2d_vector<T: Display>(vector: &Vec<Vec<T>>) {
-    for i in 0..vector.len() {
-        for j in 0..vector[i].len() {
-            print!("{}, ", vector[i][j]);
+    for row in vector {
+        for val in row {
+            print!("{}, ", val);
         }
         println!();
     }
 }
 
 pub fn print_vector<T: Display>(vector: &Vec<T>) {
-    for i in 0..vector.len() {
-        print!("{}, ", vector[i]);
+    for val in vector {
+        print!("{}, ", val);
     }
 }
