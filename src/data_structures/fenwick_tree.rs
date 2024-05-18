@@ -120,7 +120,7 @@ impl FenwickTree2D {
     }
 
     pub fn range_sum(&self, y1: i32, x1: i32, y2: i32, x2: i32) -> i32 {
-        self.sum(y2, x2) - self.sum(y1 - 1, x2) - self.sum(y2, x1 - 1) + self.sum(y1 - 1, x1 - 1)
+        self.sum(y2, x2) - self.sum(y1 - 1, x2) - self.sum(y2, x1 - 1)
     }
 
     pub fn add(&mut self, x: usize, y: usize, val: i32) {
