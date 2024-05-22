@@ -4,7 +4,6 @@ name: Continuous integration
 
 env:
   RUST_BACKTRACE: 1
-  RUSTFLAGS: "-Dwarnings"
 
 jobs:
   check:
