@@ -1,4 +1,6 @@
+use num::Zero;
 use std::f64;
+use std::ops::AddAssign;
 
 pub enum SparseTableType {
     MIN,
@@ -6,17 +8,23 @@ pub enum SparseTableType {
     SUM,
 }
 
-pub struct SparseTable {
-    pub st: Vec<Vec<i32>>,
-    pub nums: Vec<i32>,
+pub struct SparseTable<T>
+where
+    T: Ord + Zero + Copy + AddAssign,
+{
+    pub st: Vec<Vec<T>>,
+    pub nums: Vec<T>,
     pub k: usize,
     pub st_type: SparseTableType,
 }
 
-impl SparseTable {
-    pub fn new(nums: Vec<i32>, st_type: SparseTableType) -> Self {
+impl<T> SparseTable<T>
+where
+    T: Ord + Zero + Copy + AddAssign,
+{
+    pub fn new(nums: Vec<T>, st_type: SparseTableType) -> Self {
         let k = f64::log2(nums.len() as f64) as usize;
-        let mut st = vec![vec![0; nums.len()]; k + 1];
+        let mut st = vec![vec![T::zero(); nums.len()]; k + 1];
 
         st[0][..nums.len()].copy_from_slice(&nums[..]);
 
@@ -40,8 +48,8 @@ impl SparseTable {
         }
     }
 
-    pub fn sum_query(&self, l: usize, r: usize) -> i32 {
-        let mut sum = 0;
+    pub fn sum_query(&self, l: usize, r: usize) -> T {
+        let mut sum = T::zero();
         let mut j = l;
         for i in (0..=self.k).rev() {
             if j <= r && (1 << i) <= r - j + 1 {
@@ -53,29 +61,25 @@ impl SparseTable {
         sum
     }
 
-    pub fn min_query(&self, l: usize, r: usize) -> i32 {
+    pub fn min_query(&self, l: usize, r: usize) -> T {
         let i = f64::log2((r - l + 1) as f64) as usize;
         self.st[i][l].min(self.st[i][r - ((1 << i) - 1)])
     }
 
-    pub fn max_query(&self, l: usize, r: usize) -> i32 {
+    pub fn max_query(&self, l: usize, r: usize) -> T {
         let i = f64::log2((r - l + 1) as f64) as usize;
         self.st[i][l].max(self.st[i][r - ((1 << i) - 1)])
     }
 }
 
-pub fn get_sparse_table(nums: Vec<i32>, st_type: SparseTableType) -> SparseTable {
-    SparseTable::new(nums, st_type)
-}
-
 #[cfg(test)]
 mod test {
-    use super::{get_sparse_table, SparseTableType};
+    use super::{SparseTable, SparseTableType};
 
     #[test]
     fn test_sparse_table_sum() {
         let nums = vec![1, 2, 3, 4, 5, 6, 7, 8];
-        let st = get_sparse_table(nums, SparseTableType::SUM);
+        let st = SparseTable::new(nums, SparseTableType::SUM);
         let res = st.sum_query(0, 7);
         print!("Sum query result: {}", res);
     }
@@ -83,7 +87,7 @@ mod test {
     #[test]
     fn test_sparse_table_min() {
         let nums = vec![1, 2, 3, 4, 5, 6, 7, 8];
-        let st = get_sparse_table(nums, SparseTableType::MIN);
+        let st = SparseTable::new(nums, SparseTableType::MIN);
         let res = st.min_query(4, 7);
         print!("Min query result: {}", res);
     }
@@ -91,7 +95,7 @@ mod test {
     #[test]
     fn test_sparse_table_max() {
         let nums = vec![1, 2, 20, 4, 5, 6, 7, 8];
-        let st = get_sparse_table(nums, SparseTableType::MAX);
+        let st = SparseTable::new(nums, SparseTableType::MAX);
         let res = st.max_query(0, 7);
         print!("Max query result: {}", res);
     }

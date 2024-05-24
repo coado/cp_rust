@@ -1,19 +1,27 @@
+use num::{Bounded, Zero};
 use std::cmp::min;
+use std::ops::{AddAssign, Sub};
 
-pub struct FenwickTree {
+pub struct FenwickTree<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero,
+{
     n: usize,
-    tree: Vec<i32>,
+    tree: Vec<T>,
 }
 
-impl FenwickTree {
-    pub fn new(n: usize) -> Self {
+impl<T> FenwickTree<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero,
+{
+    pub fn new(n: usize, default: T) -> Self {
         FenwickTree {
             n,
-            tree: vec![0; n],
+            tree: vec![default; n],
         }
     }
 
-    pub fn add(&mut self, idx: usize, delta: i32) {
+    pub fn add(&mut self, idx: usize, delta: T) {
         let mut idx = idx;
 
         while idx < self.n {
@@ -22,9 +30,9 @@ impl FenwickTree {
         }
     }
 
-    pub fn sum(&self, r: i32) -> i32 {
+    pub fn sum(&self, r: i64) -> T {
         let mut r = r;
-        let mut ret = 0;
+        let mut ret = T::zero();
 
         while r >= 0 {
             ret += self.tree[r as usize];
@@ -34,14 +42,14 @@ impl FenwickTree {
         ret
     }
 
-    pub fn range_sum(&self, l: i32, r: i32) -> i32 {
+    pub fn range_sum(&self, l: i64, r: i64) -> T {
         self.sum(r) - self.sum(l - 1)
     }
 }
 
-impl From<Vec<i32>> for FenwickTree {
+impl From<Vec<i32>> for FenwickTree<i32> {
     fn from(nums: Vec<i32>) -> Self {
-        let mut fenwick_tree = FenwickTree::new(nums.len());
+        let mut fenwick_tree = FenwickTree::new(nums.len(), 0);
 
         for (i, val) in nums.iter().enumerate() {
             fenwick_tree.tree[i] += val;
@@ -53,22 +61,70 @@ impl From<Vec<i32>> for FenwickTree {
     }
 }
 
-pub struct MinFenwickTree {
-    n: usize,
-    tree: Vec<i32>,
+impl From<Vec<i64>> for FenwickTree<i64> {
+    fn from(nums: Vec<i64>) -> Self {
+        let mut fenwick_tree = FenwickTree::new(nums.len(), 0);
+
+        for (i, val) in nums.iter().enumerate() {
+            fenwick_tree.tree[i] += val;
+            let r = i | (i + 1);
+            fenwick_tree.tree[r] += fenwick_tree.tree[i];
+        }
+
+        fenwick_tree
+    }
 }
 
-impl MinFenwickTree {
+impl From<Vec<i16>> for FenwickTree<i16> {
+    fn from(nums: Vec<i16>) -> Self {
+        let mut fenwick_tree = FenwickTree::new(nums.len(), 0);
+
+        for (i, val) in nums.iter().enumerate() {
+            fenwick_tree.tree[i] += val;
+            let r = i | (i + 1);
+            fenwick_tree.tree[r] += fenwick_tree.tree[i];
+        }
+
+        fenwick_tree
+    }
+}
+
+impl From<Vec<i8>> for FenwickTree<i8> {
+    fn from(nums: Vec<i8>) -> Self {
+        let mut fenwick_tree = FenwickTree::new(nums.len(), 0);
+
+        for (i, val) in nums.iter().enumerate() {
+            fenwick_tree.tree[i] += val;
+            let r = i | (i + 1);
+            fenwick_tree.tree[r] += fenwick_tree.tree[i];
+        }
+
+        fenwick_tree
+    }
+}
+
+pub struct MinFenwickTree<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero + Bounded + Ord,
+{
+    n: usize,
+    tree: Vec<T>,
+}
+
+impl<T> MinFenwickTree<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero + Bounded + Ord,
+{
     pub fn new(n: usize) -> Self {
         MinFenwickTree {
             n,
-            tree: vec![i32::MAX; n],
+            tree: vec![T::max_value(); n],
         }
     }
 
-    pub fn get_min(&self, r: i32) -> i32 {
+    pub fn get_min(&self, r: i32) -> T {
         let mut r = r;
-        let mut ret = i32::MAX;
+        let mut ret = T::max_value();
 
         while r >= 0 {
             ret = min(ret, self.tree[r as usize]);
@@ -78,7 +134,7 @@ impl MinFenwickTree {
         ret
     }
 
-    pub fn update(&mut self, idx: usize, val: i32) {
+    pub fn update(&mut self, idx: usize, val: T) {
         let mut idx = idx;
 
         while idx < self.n {
@@ -88,24 +144,30 @@ impl MinFenwickTree {
     }
 }
 
-pub struct FenwickTree2D {
+pub struct FenwickTree2D<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero,
+{
     n: usize,
     m: usize,
-    tree: Vec<Vec<i32>>,
+    tree: Vec<Vec<T>>,
 }
 
-impl FenwickTree2D {
+impl<T> FenwickTree2D<T>
+where
+    T: Copy + AddAssign + Sub<Output = T> + Zero,
+{
     pub fn new(n: usize, m: usize) -> Self {
         FenwickTree2D {
             n,
             m,
-            tree: vec![vec![0; n]; m],
+            tree: vec![vec![T::zero(); n]; m],
         }
     }
 
-    pub fn sum(&self, y: i32, x: i32) -> i32 {
+    pub fn sum(&self, y: i32, x: i32) -> T {
         let mut y = y;
-        let mut res = 0;
+        let mut res = T::zero();
 
         while y >= 0 {
             let mut x = x;
@@ -119,11 +181,11 @@ impl FenwickTree2D {
         res
     }
 
-    pub fn range_sum(&self, y1: i32, x1: i32, y2: i32, x2: i32) -> i32 {
+    pub fn range_sum(&self, y1: i32, x1: i32, y2: i32, x2: i32) -> T {
         self.sum(y2, x2) - self.sum(y1 - 1, x2) - self.sum(y2, x1 - 1) + self.sum(y1 - 1, x1 - 1)
     }
 
-    pub fn add(&mut self, x: usize, y: usize, val: i32) {
+    pub fn add(&mut self, x: usize, y: usize, val: T) {
         let mut i = y;
 
         while i < self.m {
@@ -151,7 +213,7 @@ mod test {
         let mut rng = thread_rng();
         let mut nums: Vec<i32> = vec![0; n];
 
-        let mut fenwick_tree = FenwickTree::new(n);
+        let mut fenwick_tree = FenwickTree::new(n, 0);
         let mut sum = 0;
 
         for i in 0..n {
@@ -159,7 +221,7 @@ mod test {
             fenwick_tree.add(i, nums[i]);
 
             sum += nums[i];
-            assert_eq!(fenwick_tree.sum(i as i32), sum);
+            assert_eq!(fenwick_tree.sum(i as i64), sum);
         }
     }
 
@@ -169,7 +231,7 @@ mod test {
         let mut rng = thread_rng();
         let mut prefix_sum: Vec<i32> = vec![0; n];
 
-        let mut fenwick_tree = FenwickTree::new(n);
+        let mut fenwick_tree = FenwickTree::new(n, 0);
 
         for i in 1..n {
             let val = rng.gen_range(0..1000);
@@ -184,7 +246,7 @@ mod test {
             let l = v1.min(v2);
             let r = v1.max(v2);
 
-            let sum = fenwick_tree.range_sum(l as i32, r as i32);
+            let sum = fenwick_tree.range_sum(l as i64, r as i64);
             let expected = prefix_sum[r] - prefix_sum[l - 1];
 
             assert_eq!(sum, expected);
@@ -272,7 +334,6 @@ mod test {
                 .iter()
                 .map(|row| row[x1..=x2].iter().sum::<i32>())
                 .sum::<i32>();
-            println!("sum: {}, expected: {}", sum, expected);
             assert_eq!(sum, expected);
         }
     }
