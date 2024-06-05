@@ -1,7 +1,7 @@
 use anyhow::{bail, Context, Result};
 use std::collections::{HashMap, VecDeque};
 
-pub fn is_bipartite(al: &Vec<&Vec<usize>>) -> Result<bool> {
+pub fn is_bipartite(al: &[&Vec<usize>]) -> Result<bool> {
     let mut is_correct = true;
     let mut deque: VecDeque<usize> = VecDeque::new();
     let mut color = vec![std::usize::MAX; al.len()];
@@ -61,16 +61,16 @@ pub fn kuhn_algorithm(
         mt: &mut HashMap<usize, i32>,
         visited: &mut HashMap<usize, bool>,
     ) -> bool {
-        if visited.get(&u).is_some_and(|x| *x == true) || visited.get(&u).is_none() {
+        if visited.get(&u).is_some_and(|x| *x) || visited.get(&u).is_none() {
             return false;
         }
 
         visited.insert(u, true);
 
         for v in al[u] {
-            if let Some(matched) = mt.get(&(*v as usize)) {
+            if let Some(matched) = mt.get(v) {
                 if *matched == -1 || dfs(*matched as usize, al, mt, visited) {
-                    mt.insert(*v as usize, u as i32);
+                    mt.insert(*v, u as i32);
                     return true;
                 }
             }
@@ -95,31 +95,31 @@ mod tests {
 
     #[test]
     fn test_graph_matching_should_succeed() {
-        let al: Vec<Vec<usize>> = vec![
-            vec![3, 4, 5],
-            vec![3, 4, 5],
-            vec![3, 4, 5],
-            vec![0, 1, 2],
-            vec![0, 1, 2],
-            vec![0, 1, 2],
+        let al = [
+            &vec![3, 4, 5],
+            &vec![3, 4, 5],
+            &vec![3, 4, 5],
+            &vec![0, 1, 2],
+            &vec![0, 1, 2],
+            &vec![0, 1, 2],
         ];
 
-        let res = is_bipartite(&al.iter().collect()).unwrap();
+        let res = is_bipartite(&al).unwrap();
         assert_eq!(res, true);
     }
 
     #[test]
     fn test_graph_matching_should_not_succeed() {
-        let al: Vec<Vec<usize>> = vec![
-            vec![1, 4, 5],
-            vec![3, 4, 5],
-            vec![3, 4, 5],
-            vec![0, 1, 2],
-            vec![0, 1, 2],
-            vec![0, 1, 2],
+        let al = [
+            &vec![1, 4, 5],
+            &vec![3, 4, 5],
+            &vec![3, 4, 5],
+            &vec![0, 1, 2],
+            &vec![0, 1, 2],
+            &vec![0, 1, 2],
         ];
 
-        let res = is_bipartite(&al.iter().collect()).unwrap();
+        let res = is_bipartite(&al).unwrap();
         assert_eq!(res, false);
     }
 
