@@ -1,13 +1,16 @@
 use anyhow::{bail, Result};
-use std;
+use num::{Bounded, Zero};
 
-pub fn bellman_ford(graph: Vec<Vec<Option<i32>>>, src: usize, vertexes: usize) -> Result<Vec<i32>> {
-    let mut dist = vec![std::i32::MAX; vertexes];
-    dist[src] = 0;
+pub fn bellman_ford<T>(graph: Vec<Vec<Option<T>>>, src: usize, vertices: usize) -> Result<Vec<T>>
+where
+    T: Bounded + Copy + Zero + PartialEq + PartialOrd,
+{
+    let mut dist = vec![T::max_value(); vertices];
+    dist[src] = T::zero();
 
-    for _ in 1..vertexes - 1 {
-        for u in 0..vertexes {
-            for v in 0..vertexes {
+    for _ in 1..vertices - 1 {
+        for u in 0..vertices {
+            for v in 0..vertices {
                 if u == v {
                     continue;
                 }
@@ -15,7 +18,7 @@ pub fn bellman_ford(graph: Vec<Vec<Option<i32>>>, src: usize, vertexes: usize) -
                 match graph[u][v] {
                     None => continue,
                     Some(w) => {
-                        if dist[u] != std::i32::MAX && dist[u] + w < dist[v] {
+                        if dist[u] != T::max_value() && dist[u] + w < dist[v] {
                             dist[v] = w + dist[u];
                         }
                     }
@@ -24,9 +27,9 @@ pub fn bellman_ford(graph: Vec<Vec<Option<i32>>>, src: usize, vertexes: usize) -
         }
     }
 
-    for _ in 1..vertexes - 1 {
-        for u in 0..vertexes {
-            for v in 0..vertexes {
+    for _ in 1..vertices - 1 {
+        for u in 0..vertices {
+            for v in 0..vertices {
                 if u == v {
                     continue;
                 }
@@ -34,7 +37,7 @@ pub fn bellman_ford(graph: Vec<Vec<Option<i32>>>, src: usize, vertexes: usize) -
                 match graph[u][v] {
                     None => continue,
                     Some(w) => {
-                        if dist[u] != std::i32::MAX && dist[u] + w < dist[v] {
+                        if dist[u] != T::max_value() && dist[u] + w < dist[v] {
                             bail!("Graph contains negative weight cycle");
                         }
                     }
