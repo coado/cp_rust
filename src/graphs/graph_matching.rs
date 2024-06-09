@@ -45,7 +45,7 @@ pub fn kuhn_algorithm(
     v: Vec<usize>,
 ) -> Result<HashMap<usize, i32>> {
     if al.len() != u.len() + v.len() {
-        bail!("");
+        bail!("Adjacency list length is not equal u + v length");
     }
 
     let mut mt: HashMap<usize, i32> = HashMap::new();
