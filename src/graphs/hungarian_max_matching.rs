@@ -1,21 +1,25 @@
 pub fn hungarian_alg(a: Vec<Vec<i32>>, n: usize, m: usize) -> Vec<i32> {
-    // potential of X
+    // potential of L
     let mut u = vec![0; n + 1];
-    // potential of Y
+    // potential of R
     let mut v = vec![0; m + 1];
     // matching
     let mut p = vec![0; m + 1];
     // where the mins are reached, so that we can reconstruct the augmenting path
+    // for each column j, contains the number of previous column in the path
     let mut way = vec![0; m + 1];
 
     for i in 1..=n {
         p[0] = i;
         let mut j0 = 0;
+        // stores auxilary min for each column
         let mut minv = vec![std::i32::MAX; m + 1];
         let mut used = vec![false; m + 1];
 
+        // runs until it finds the R j0 vertex that is not matched
         while p[j0] != 0 {
             used[j0] = true;
+            // adjacent L vertex
             let i0 = p[j0];
             let mut delta = std::i32::MAX;
             let mut j1 = 0;
@@ -25,7 +29,7 @@ pub fn hungarian_alg(a: Vec<Vec<i32>>, n: usize, m: usize) -> Vec<i32> {
                     continue;
                 };
 
-                let cur = a[i0][j] - u[i0] - v[j];
+                let cur = a[i0 - 1][j - 1] - u[i0] - v[j];
                 if cur < minv[j] {
                     minv[j] = cur;
                     way[j] = j0;

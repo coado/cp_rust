@@ -1,19 +1,24 @@
 use anyhow::{bail, Result};
+use num::{Bounded, Zero};
 use std::borrow::{Borrow, BorrowMut};
 use std::collections::{HashMap, VecDeque};
+use std::ops::{AddAssign, Sub, SubAssign};
 
-pub struct Edge {
+pub struct Edge<T> {
     pub to: usize,
-    pub capacity: i32,
-    pub flow: i32,
+    pub capacity: T,
+    pub flow: T,
 }
 
-impl Edge {
-    pub fn new(to: usize, capacity: i32) -> Self {
+impl<T> Edge<T>
+where
+    T: Zero,
+{
+    pub fn new(to: usize, capacity: T) -> Self {
         Edge {
             to,
             capacity,
-            flow: 0,
+            flow: T::zero(),
         }
     }
 }
@@ -25,15 +30,18 @@ pub trait AddEdge {
 /// Edmonds-Karp algorithm for finding maximum flow in a graph
 /// that runs in O(VE^2) time complexity.
 /// Uses BFS to find augmenting paths (shortest path from source to sink)
-pub struct EdmondsKarpMaxFlow {
+pub struct EdmondsKarpMaxFlow<T> {
     al: Vec<Vec<usize>>,
-    edges: Vec<Edge>,
+    edges: Vec<Edge<T>>,
     parent: Vec<Option<usize>>,
     n: usize,
     lt: HashMap<String, usize>,
 }
 
-impl EdmondsKarpMaxFlow {
+impl<T> EdmondsKarpMaxFlow<T>
+where
+    T: Zero + Copy + AddAssign + Sub<Output = T> + SubAssign + PartialEq + Bounded + Ord,
+{
     pub fn new(n: usize) -> Self {
         EdmondsKarpMaxFlow {
             al: vec![vec![]; n],
@@ -44,31 +52,30 @@ impl EdmondsKarpMaxFlow {
         }
     }
 
-    pub fn add_edge(&mut self, from: usize, to: usize, capacity: i32) -> Result<()> {
+    pub fn add_edge(&mut self, from: usize, to: usize, capacity: T) -> Result<()> {
         assert_vertices_in_bounds(from, to, self.n)?;
 
         let id = self.edges.len();
         self.al[from].push(id);
         self.edges.push(Edge::new(to, capacity));
-        self.lt.insert(String::from(format!("{}-{}", from, to)), id);
+        self.lt.insert(format!("{}-{}", from, to), id);
 
         self.al[to].push(id + 1);
-        self.edges.push(Edge::new(from, 0));
-        self.lt
-            .insert(String::from(format!("{}-{}", to, from)), id + 1);
+        self.edges.push(Edge::new(from, T::zero()));
+        self.lt.insert(format!("{}-{}", to, from), id + 1);
 
         Ok(())
     }
 
-    pub fn maxflow(&mut self, source: usize, sink: usize) -> Result<i32> {
+    pub fn maxflow(&mut self, source: usize, sink: usize) -> Result<T> {
         assert_vertices_in_bounds(source, sink, self.n)?;
 
         self.reset();
-        let mut flow = 0;
+        let mut flow = T::zero();
 
         loop {
             let new_flow = self.bfs(source, sink);
-            if new_flow == 0 {
+            if new_flow == T::zero() {
                 break;
             }
             flow += new_flow;
@@ -89,18 +96,18 @@ impl EdmondsKarpMaxFlow {
         Ok(flow)
     }
 
-    fn bfs(&mut self, source: usize, sink: usize) -> i32 {
+    fn bfs(&mut self, source: usize, sink: usize) -> T {
         self.parent.fill(None);
         self.parent[source] = Some(source);
-        let mut deque: VecDeque<(usize, i32)> = VecDeque::new();
-        deque.push_back((source, std::i32::MAX));
+        let mut deque: VecDeque<(usize, T)> = VecDeque::new();
+        deque.push_back((source, T::max_value()));
 
         while !deque.is_empty() {
             let (v, flow) = deque.pop_front().unwrap();
 
             for u in self.al[v].iter() {
                 let edge = self.edges[*u].borrow();
-                if self.parent[edge.to].is_none() && edge.capacity - edge.flow > 0 {
+                if self.parent[edge.to].is_none() && edge.capacity - edge.flow > T::zero() {
                     self.parent[edge.to] = Some(v);
                     let new_flow = std::cmp::min(flow, edge.capacity - edge.flow);
                     if edge.to == sink {
@@ -112,34 +119,37 @@ impl EdmondsKarpMaxFlow {
             }
         }
 
-        0
+        T::zero()
     }
 
     fn reset(&mut self) {
         self.parent.fill(None);
         self.edges.iter_mut().for_each(|edge| {
-            edge.flow = 0;
+            edge.flow = T::zero();
         });
     }
 }
 
-pub struct DinicMaxFlow {
+pub struct DinicMaxFlow<T> {
     dist: Vec<i32>,
     last: Vec<usize>,
     source: usize,
     sink: usize,
     al: Vec<Vec<usize>>,
     num_edges: usize,
-    edges: Vec<Edge>,
+    edges: Vec<Edge<T>>,
     vertices: usize,
 }
 
-impl DinicMaxFlow {
+impl<T> DinicMaxFlow<T>
+where
+    T: Zero + Clone + Copy + AddAssign + Sub<Output = T> + SubAssign + PartialEq + Bounded + Ord,
+{
     pub fn new(source: usize, sink: usize, vertices: usize) -> Result<Self> {
         assert_vertices_in_bounds(source, sink, vertices)?;
 
         Ok(DinicMaxFlow {
-            dist: vec![0; vertices],
+            dist: vec![-1; vertices],
             last: vec![0; vertices],
             source,
             sink,
@@ -150,14 +160,14 @@ impl DinicMaxFlow {
         })
     }
 
-    pub fn add_edge(&mut self, from: usize, to: usize, capacity: i32) -> Result<()> {
+    pub fn add_edge(&mut self, from: usize, to: usize, capacity: T) -> Result<()> {
         assert_vertices_in_bounds(from, to, self.vertices)?;
 
         self.al[from].push(self.num_edges);
         self.edges.push(Edge::new(to, capacity));
         self.num_edges += 1;
         self.al[to].push(self.num_edges);
-        self.edges.push(Edge::new(from, 0));
+        self.edges.push(Edge::new(from, T::zero()));
         self.num_edges += 1;
 
         Ok(())
@@ -197,8 +207,8 @@ impl DinicMaxFlow {
         self.dist[self.sink] != -1
     }
 
-    fn dfs(&mut self, u: usize, f: i32) -> i32 {
-        if u == self.sink || f == 0 {
+    fn dfs(&mut self, u: usize, f: T) -> T {
+        if u == self.sink || f == T::zero() {
             return f;
         }
 
@@ -212,7 +222,7 @@ impl DinicMaxFlow {
 
             let df = self.dfs(edge.to, std::cmp::min(f, edge.capacity - edge.flow));
 
-            if df > 0 {
+            if df > T::zero() {
                 self.last[u] = e;
                 self.edges[edge_id].flow += df;
                 self.edges[edge_id ^ 1].flow -= df;
@@ -221,18 +231,18 @@ impl DinicMaxFlow {
         }
 
         self.last[u] = self.al[u].len();
-        0
+        T::zero()
     }
 
-    pub fn maxflow(&mut self) -> i32 {
+    pub fn maxflow(&mut self) -> T {
         self.reset();
-        let mut flow = 0;
+        let mut flow = T::zero();
 
         while self.bfs() {
             self.last.fill(0);
             loop {
-                let df = self.dfs(self.source, std::i32::MAX);
-                if df == 0 {
+                let df = self.dfs(self.source, T::max_value());
+                if df == T::zero() {
                     break;
                 }
                 flow += df;
@@ -246,7 +256,7 @@ impl DinicMaxFlow {
         self.dist.fill(0);
         self.last.fill(0);
         self.edges.iter_mut().for_each(|edge| {
-            edge.flow = 0;
+            edge.flow = T::zero();
         });
     }
 }
@@ -299,6 +309,16 @@ mod tests {
 
         let res = edmonds_karp.maxflow(4, 3).unwrap();
         assert_eq!(res, 5);
+
+        let mut edmonds_karp = EdmondsKarpMaxFlow::new(4);
+        edmonds_karp.add_edge(0, 1, 20).unwrap();
+        edmonds_karp.add_edge(0, 2, 10).unwrap();
+        edmonds_karp.add_edge(1, 2, 5).unwrap();
+        edmonds_karp.add_edge(1, 3, 10).unwrap();
+        edmonds_karp.add_edge(2, 3, 20).unwrap();
+
+        let res = edmonds_karp.maxflow(0, 3);
+        assert_eq!(res.unwrap(), 25);
     }
 
     #[test]
@@ -340,5 +360,15 @@ mod tests {
         dinic.update_source_and_sink(4, 3).unwrap();
         let res = dinic.maxflow();
         assert_eq!(res, 5);
+
+        let mut dinic = DinicMaxFlow::new(0, 3, 4).unwrap();
+        dinic.add_edge(0, 1, 20).unwrap();
+        dinic.add_edge(0, 2, 10).unwrap();
+        dinic.add_edge(1, 2, 5).unwrap();
+        dinic.add_edge(1, 3, 10).unwrap();
+        dinic.add_edge(2, 3, 20).unwrap();
+
+        let res = dinic.maxflow();
+        assert_eq!(res, 25);
     }
 }
