@@ -3,3 +3,5 @@ pub mod algebra;
 pub mod data_structures;
 pub mod graphs;
 pub mod utils;
+
+pub(crate) mod bitmasks;
