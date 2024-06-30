@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+#[derive(Debug, Clone, Default)]
 pub struct Kosarajus {
     visited: Vec<bool>,
     order: Vec<usize>,
@@ -70,6 +71,7 @@ impl Kosarajus {
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct Tarjans {
     visited: Vec<bool>,
     stack: Vec<usize>,

@@ -1,5 +1,4 @@
-#[derive(Clone, PartialEq)]
-
+#[derive(Clone, PartialEq, Debug, Default)]
 pub struct ArticulationPointAndBridge {
     dfs_num: Vec<Option<usize>>,
     dfs_low: Vec<Option<usize>>,

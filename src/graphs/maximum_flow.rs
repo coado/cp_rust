@@ -4,6 +4,7 @@ use std::borrow::{Borrow, BorrowMut};
 use std::collections::{HashMap, VecDeque};
 use std::ops::{AddAssign, Sub, SubAssign};
 
+#[derive(Debug, Clone, Default, Copy)]
 pub struct Edge<T> {
     pub to: usize,
     pub capacity: T,
@@ -30,6 +31,7 @@ pub trait AddEdge {
 /// Edmonds-Karp algorithm for finding maximum flow in a graph
 /// that runs in O(VE^2) time complexity.
 /// Uses BFS to find augmenting paths (shortest path from source to sink)
+#[derive(Debug, Clone, Default)]
 pub struct EdmondsKarpMaxFlow<T> {
     al: Vec<Vec<usize>>,
     edges: Vec<Edge<T>>,
@@ -130,6 +132,7 @@ where
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct DinicMaxFlow<T> {
     dist: Vec<i32>,
     last: Vec<usize>,

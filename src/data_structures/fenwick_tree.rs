@@ -2,6 +2,7 @@ use num::{Bounded, Zero};
 use std::cmp::min;
 use std::ops::{AddAssign, Sub};
 
+#[derive(Debug, Clone, Default)]
 pub struct FenwickTree<T>
 where
     T: Copy + AddAssign + Sub<Output = T> + Zero,
@@ -103,6 +104,7 @@ impl From<Vec<i8>> for FenwickTree<i8> {
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct MinFenwickTree<T>
 where
     T: Copy + AddAssign + Sub<Output = T> + Zero + Bounded + Ord,
@@ -144,6 +146,7 @@ where
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct FenwickTree2D<T>
 where
     T: Copy + AddAssign + Sub<Output = T> + Zero,

@@ -2,12 +2,14 @@ use num::Zero;
 use std::f64;
 use std::ops::AddAssign;
 
+#[derive(Debug, Clone)]
 pub enum SparseTableType {
     MIN,
     MAX,
     SUM,
 }
 
+#[derive(Debug, Clone)]
 pub struct SparseTable<T>
 where
     T: Ord + Zero + Copy + AddAssign,

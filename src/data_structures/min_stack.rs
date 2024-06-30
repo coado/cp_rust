@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct Stack<T> {
     pub stack: Vec<T>,
     min_stack: Vec<T>,

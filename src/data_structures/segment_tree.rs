@@ -4,6 +4,7 @@ use std::cmp::{max, min};
 /// O(log n) time complexity for range queries and updates.
 /// The segment tree is a binary tree that stores the range of values in an array.
 /// The root of the tree stores the range of values from 0 to n-1
+
 pub struct SegmentTree<T: PartialEq + Copy> {
     n: usize,
     nums: Vec<T>,
