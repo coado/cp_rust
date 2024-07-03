@@ -18,8 +18,8 @@ impl Kosarajus {
         let n = al.len();
 
         let mut al_rev = vec![vec![]; n];
-        for u in 0..n {
-            for &v in &al[u] {
+        for (u, item) in al.iter().enumerate() {
+            for &v in item {
                 al_rev[v].push(u);
             }
         }
@@ -52,7 +52,7 @@ impl Kosarajus {
         self.visited[u] = true;
         for &v in &al[u] {
             if !self.visited[v] {
-                self.dfs(v as usize, al);
+                self.dfs(v, al);
             }
         }
 
@@ -63,7 +63,7 @@ impl Kosarajus {
         self.visited[u] = true;
         for &v in &al[u] {
             if !self.visited[v] {
-                self.dfs_rev(v as usize, al, components);
+                self.dfs_rev(v, al, components);
             }
         }
 

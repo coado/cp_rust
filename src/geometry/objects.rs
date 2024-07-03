@@ -108,11 +108,11 @@ impl Line2D {
     }
 
     pub fn is_parallel(&self, other: &Self) -> bool {
-        return (self.a - other.a).abs() < EPS && (self.b - other.b).abs() < EPS;
+        (self.a - other.a).abs() < EPS && (self.b - other.b).abs() < EPS
     }
 
     pub fn is_same(&self, other: &Self) -> bool {
-        return self.is_parallel(other) && (self.c - other.c).abs() < EPS;
+        self.is_parallel(other) && (self.c - other.c).abs() < EPS
     }
 
     pub fn intersection(&self, other: &Self) -> Option<Point2D> {

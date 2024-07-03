@@ -74,6 +74,12 @@ impl UnionFind {
     }
 }
 
+impl Default for UnionFind {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::UnionFind;

@@ -34,6 +34,7 @@ pub fn is_bipartite(al: &[&Vec<usize>]) -> Result<bool> {
 /// * v - vector of right side vertecies ids
 ///
 /// ```
+/// # use cp_rust::graphs::graph_matching::kuhn_algorithm;
 /// # let al: Vec<Vec<usize>> = vec![vec![2, 3], vec![2], vec![0, 1], vec![0]];
 /// # let u = vec![0, 1];
 /// # let v = vec![2, 3];

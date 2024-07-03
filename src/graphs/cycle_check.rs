@@ -17,7 +17,7 @@ fn dfs(al: &[Vec<usize>], v_states: &mut Vec<VertexState>, u: usize) -> CycleChe
 
     for v in al[u].iter() {
         let res = match v_states[*v] {
-            VertexState::Unvisited => dfs(&al, v_states, *v),
+            VertexState::Unvisited => dfs(al, v_states, *v),
             VertexState::Explored => CycleCheckResult::BackEdge,
             VertexState::Visited => CycleCheckResult::CrossEdge,
         };
@@ -36,7 +36,7 @@ pub fn cycle_check(al: &[Vec<usize>]) -> CycleCheckResult {
 
     for i in 0..al.len() {
         let res: CycleCheckResult = match v_states[i] {
-            VertexState::Unvisited => dfs(&al, &mut v_states, i),
+            VertexState::Unvisited => dfs(al, &mut v_states, i),
             _ => CycleCheckResult::NoCycle,
         };
 
