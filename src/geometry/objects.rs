@@ -1,32 +1,16 @@
 use std::cmp::Ordering;
 
-const EPS: f64 = 1e-9;
+pub const EPS: f64 = 1e-9;
 
 #[derive(Debug, Clone, Default, Copy)]
 pub struct Point2D {
-    x: f64,
-    y: f64,
+    pub x: f64,
+    pub y: f64,
 }
 
 impl Point2D {
     pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
-    }
-
-    pub fn x(&self) -> &f64 {
-        &self.x
-    }
-
-    pub fn y(&self) -> &f64 {
-        &self.y
-    }
-
-    pub fn set_x(&mut self, x: f64) {
-        self.x = x;
-    }
-
-    pub fn set_y(&mut self, y: f64) {
-        self.y = y;
     }
 
     pub fn distance(&self, other: &Self) -> f64 {
@@ -53,6 +37,7 @@ impl PartialEq for Point2D {
 }
 
 impl PartialOrd for Point2D {
+    #[allow(clippy::non_canonical_partial_ord_impl)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if (self.x - other.x).abs() < EPS {
             if (self.y - other.y).abs() < EPS {
@@ -67,6 +52,14 @@ impl PartialOrd for Point2D {
         } else {
             Some(Ordering::Greater)
         }
+    }
+}
+
+impl Eq for Point2D {}
+
+impl Ord for Point2D {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap()
     }
 }
 
